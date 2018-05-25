@@ -10,15 +10,21 @@ public class DeferredResult<T> {
 
 	private T result;
 
+	private Exception e;
+
 	/**
 	 * 阻塞当前线程，直到setResult被调用
 	 * 
 	 * @return
-	 * @throws InterruptedException
+	 * @throws Exception
 	 */
-	public T getResult() throws InterruptedException {
+	public T getResult() throws Exception {
 		latch.await();
-		return result;
+		if (e != null) {
+			throw e;
+		} else {
+			return result;
+		}
 	}
 
 	public void setResult(T result) {
@@ -26,7 +32,8 @@ public class DeferredResult<T> {
 		latch.countDown();
 	}
 
-	public void setExceptionResult() {
+	public void setExceptionResult(Exception e) {
+		this.e = e;
 		latch.countDown();
 	}
 
